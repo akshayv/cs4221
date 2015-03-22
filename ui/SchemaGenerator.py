@@ -351,12 +351,14 @@ class AddDomainDialog(wx.Dialog) :
         self.SetSizer(mainSizer)
         self.Fit()
 
+
     def OnSave(self, event):
         if self.inameTextBox.GetValue() in frame.schemaTable.GetAllAttr() :
             dlg = wx.MessageDialog(self, "Domain with the same name is already added", "ERROR", wx.OK)
             dlg.ShowModal()
         else :
             frame.AddDomain(self.inameTextBox.GetValue(), self.itypeTextBox.GetValue())
+            self.inameTextBox.SetValue("")
 
     def OnCancel(self, event):
         self.EndModal(0)
