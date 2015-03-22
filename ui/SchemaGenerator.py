@@ -10,13 +10,15 @@ from api.GUIApi import normalize_relation
 
 class MainFrame(wx.Frame) :
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title = title, style = wx.CLOSE_BOX ,size = wx.Size(500, 450))
+        wx.Frame.__init__(self, parent, title = title, style = wx.CLOSE_BOX ,size = wx.Size(500, 590))
         self.relation = None
         self.NF = "NIL"
 
         filemenu = wx.Menu()
         menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         self.Bind(wx.EVT_MENU, self.OnAbout, menuAbout)
+
+        line = wx.StaticLine(self, wx.ID_ANY , size = (10,0), style = wx.LI_HORIZONTAL)
 
         menuExit = filemenu.Append(wx.ID_EXIT,"&Exit"," Terminate the program")
         self.Bind(wx.EVT_MENU, self.OnExit, menuExit)
@@ -37,26 +39,35 @@ class MainFrame(wx.Frame) :
 
         self.schemaTable.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.OnSingleCellSelection)
 
-        titlePanel = wx.Panel(self)
-        titleLabel = wx.StaticText(titlePanel, label = "Schema Generator ")
+        titlePanel = wx.Panel(self, size = (200,30))
+        titleLabel = wx.StaticText(titlePanel, label = "Schema Builder ")
+        font = wx.Font(28, wx.SWISS, wx.NORMAL, wx.BOLD)
+        titleLabel.SetFont(font)
 
-        nfPanel = wx.Panel(self)
-        nfLabel = wx.StaticText(nfPanel, label = "Normal Form: ")
         rbPanel = wx.Panel(self)
         self.rb1 = wx.RadioButton(rbPanel, -1, '2NF',(10,0), style=wx.RB_GROUP)
-        self.rb2 = wx.RadioButton(rbPanel, -1, '3NF',(70,0))
-        self.rb3 = wx.RadioButton(rbPanel, -1, 'BCNF',(130,0))
-        self.rb4 = wx.RadioButton(rbPanel, -1, '4NF', (190,0))
+        self.rb2 = wx.RadioButton(rbPanel, -1, '3NF',(120,0))
+        self.rb3 = wx.RadioButton(rbPanel, -1, 'BCNF',(230,0))
+        self.rb4 = wx.RadioButton(rbPanel, -1, '4NF', (340,0))
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb1.GetId())
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb2.GetId())
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb3.GetId())
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb4.GetId())
 
-
         sizer3 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer3.Add(titlePanel, 1, wx.EXPAND)
-        sizer4 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer4.Add(nfPanel)
+        sizer3.Add(titlePanel, 1, wx.TOP, 10)
+
+        LOGOBitmap = wx.Bitmap('SOC LOGO.png')
+        image = wx.ImageFromBitmap(LOGOBitmap)
+        image = image.Scale(140, 40, wx.IMAGE_QUALITY_HIGH)
+        LOGOBitmap = wx.BitmapFromImage(image)
+        icon = wx.StaticBitmap(self, bitmap = LOGOBitmap)
+        sizer3.Add(icon, flag = wx.TOP | wx.BOTTOM,
+            border = 5)
+
+        nfText = wx.StaticBox(self, label = "Normal Form")
+        sizer4 = wx.StaticBoxSizer(nfText, wx.HORIZONTAL)
+
         sizer4.Add(rbPanel)
 
         self.fdTable = FDTable(self)
@@ -87,7 +98,10 @@ class MainFrame(wx.Frame) :
         sizer6.Add(sizer6_2, 1, wx.EXPAND | wx.ALL, 10)
         sizer6.Add(sizer6_3, 1, wx.EXPAND | wx.ALL, 10)
 
-        fdSizer = wx.BoxSizer(wx.HORIZONTAL)
+        fdText = wx.StaticBox(self, label = "Functional Dependency")
+
+        fdSizer = wx.StaticBoxSizer(fdText, wx.HORIZONTAL)
+        # fdSizer = wx.BoxSizer(wx.HORIZONTAL)
         fdSizer.Add(sizer5, 1, wx.EXPAND)
         fdSizer.Add(sizer6)
 
@@ -100,6 +114,7 @@ class MainFrame(wx.Frame) :
         sizer1_2.Add(schemaEditButton, 1, wx.EXPAND)
         sizer1_3.Add(schemaDeleteButton, 1, wx.EXPAND)
 
+
         sizer1.Add(sizer1_1, 1, wx.EXPAND | wx.ALL, 10)
         sizer1.Add(sizer1_2, 1, wx.EXPAND | wx.ALL, 10)
         sizer1.Add(sizer1_3, 1, wx.EXPAND | wx.ALL, 10)
@@ -107,24 +122,33 @@ class MainFrame(wx.Frame) :
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
         sizer2.Add(self.schemaTable)
 
+        schemaText = wx.StaticBox(self, label = "Attribute")
 
-        listSizer = wx.BoxSizer(wx.HORIZONTAL)
+        listSizer = wx.StaticBoxSizer(schemaText, wx.HORIZONTAL)
+        # listSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         listSizer.Add(sizer2, 1,wx.EXPAND)
         listSizer.Add(sizer1)
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
-        mainSizer.Add(sizer3, 1, wx.ALIGN_CENTER)
-        mainSizer.Add(listSizer, 1, wx.EXPAND | wx.ALL, 20)
+        mainSizer.Add(sizer3,1, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
+        mainSizer.Add(line, 1, wx.EXPAND | wx.BOTTOM, 10)
+        mainSizer.Add(listSizer, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
         mainSizer.Add(fdSizer,1, wx.EXPAND | wx.ALL, 20)
-        mainSizer.Add(sizer4)
+        mainSizer.Add(sizer4,1, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
+
+        sizer9 = wx.BoxSizer(wx.HORIZONTAL)
+        helpButton = wx.Button(self, -1, "Help")
+        sizer9.Add(helpButton, 1, wx.LEFT, 25)
 
         generateButton = wx.Button(self, -1, "Generate")
         self.Bind(wx.EVT_BUTTON, self.OnGenerate, generateButton)
-        sizer9 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer9.Add(generateButton)
-        mainSizer.Add(sizer9)
+        sizer9.Add(generateButton, 1, wx.LEFT, 150)
 
+        exitButton = wx.Button(self, -1, "Exit")
+        sizer9.Add(exitButton, 1 , wx.RIGHT | wx.LEFT, 25)
+
+        mainSizer.Add(sizer9,1, wx.EXPAND | wx.TOP | wx.BOTTOM, 20)
 
         self.SetSizer(mainSizer)
         self.SetAutoLayout(1)
@@ -227,8 +251,8 @@ class MainFrame(wx.Frame) :
             self.schemaList = []
             for i in range(0, self.schemaTable.GetNumberRows()) :
                 tmp = {}
-                tmp["name"] = self.schemaTable.GetCellValue(i, 1)
-                tmp["type"] = self.schemaTable.GetCellValue(i, 2)
+                tmp["name"] = self.schemaTable.GetCellValue(i, 0)
+                tmp["type"] = self.schemaTable.GetCellValue(i, 1)
                 self.schemaList.append(tmp)
 
         if self.fdTable.GetNumberRows() > 0 :
@@ -262,7 +286,6 @@ class MainFrame(wx.Frame) :
             fdSet.add(FunctionalDependency(lhs,rhs))
 
         self.relation = Relation(relationSet, fdSet)
-        print self.relation
 
         soln = normalize_relation(self.relation, self.NF)
 
@@ -366,8 +389,8 @@ class EditDomainDialog(wx.Dialog) :
         idomainTypeLabel = wx.StaticText(idomainTypePanel, label = "Data Type: ", style = wx.ALIGN_CENTER)
         self.inameTextBox = wx.TextCtrl(self)
         self.itypeTextBox = wx.TextCtrl(self)
-        name = frame.schemaTable.GetCellValue(rowNo, 1)
-        type = frame.schemaTable.GetCellValue(rowNo, 2)
+        name = frame.schemaTable.GetCellValue(rowNo, 0)
+        type = frame.schemaTable.GetCellValue(rowNo, 1)
         self.inameTextBox.SetValue(name)
         self.itypeTextBox.SetValue(type)
 
@@ -409,7 +432,7 @@ class EditDomainDialog(wx.Dialog) :
         self.Destroy()
 
     def OnOK(self, event):
-        if self.inameTextBox.GetValue() in frame.schemaTable.GetAllAttr() and self.inameTextBox.GetValue() != frame.schemaTable.GetCellValue(self.rowNo, 1):
+        if self.inameTextBox.GetValue() in frame.schemaTable.GetAllAttr() and self.inameTextBox.GetValue() != frame.schemaTable.GetCellValue(self.rowNo, 0):
             dlg = wx.MessageDialog(self, "Domain with the same name is already added", "ERROR", wx.OK)
             dlg.ShowModal()
         else :
@@ -652,29 +675,40 @@ class AddAttrDialog(wx.Dialog) :
 class SchemaTable(wx.grid.Grid) :
     def __init__(self, parent):
         wx.grid.Grid.__init__(self,parent,-1, size = (500, 130))
-        self.SetColSizes(wx.grid.GridSizesInfo(103, range(0,2)))
+        # self.SetColSizes(wx.grid.GridSizesInfo(103, range(0,2)))
         self.SetDefaultCellBackgroundColour(wx.Colour(0,0,0,0))
-        self.CreateGrid(0,3)
+        self.CreateGrid(0,2)
+        self.SetColSize(0, 206)
+        self.SetColSize(1, 103)
         self.EnableEditing(False)
         self.EnableDragCell(False)
         self.EnableDragRowSize(False)
-        self.EnableDragColSize(True)
+        self.EnableDragColSize(False)
         self.HideRowLabels()
+        self.Bind(wx.grid.EVT_GRID_LABEL_LEFT_DCLICK, self.OnDoubleClick)
+        self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.OnResizeCol)
 
 
-        self.SetColLabelValue(0, "Identifier")
-        self.SetColLabelValue(1, "Domain Name")
-        self.SetColLabelValue(2, "Data Type")
+        self.SetColLabelValue(0, "Domain Name")
+        self.SetColLabelValue(1, "Data Type")
+
+    def OnDoubleClick(self, event):
+        pass
+
+    def OnResizeCol(self, event):
+        self.SetColSize(0, 206)
+        self.SetColSize(1, 103)
+        return
 
     def AddDomain(self, name, type):
         self.AppendRows(1)
-        self.SetCellValue(self.GetNumberRows()-1, 1, name)
-        self.SetCellValue(self.GetNumberRows()-1, 2, type)
+        self.SetCellValue(self.GetNumberRows()-1, 0, name)
+        self.SetCellValue(self.GetNumberRows()-1, 1, type)
 
     def GetAllAttr(self):
         attrList = []
         for i in range(0, self.GetNumberRows()) :
-            attrList.append(self.GetCellValue(i,1))
+            attrList.append(self.GetCellValue(i,0))
         print "Schema table : Get attr"
         print attrList
         return attrList
@@ -682,19 +716,36 @@ class SchemaTable(wx.grid.Grid) :
 class FDTable(wx.grid.Grid) :
     def __init__(self, parent):
         wx.grid.Grid.__init__(self,parent,-1, size = (500, 130))
-        self.SetColSizes(wx.grid.GridSizesInfo(103, range(0,3)))
+
         self.SetDefaultCellBackgroundColour(wx.Colour(0,0,0,0))
         self.CreateGrid(0,3)
+        self.SetColSize(0, 139.5)
+        self.SetColSize(1, 30)
+        self.SetColSize(2, 139.5)
         self.EnableEditing(False)
         self.EnableDragCell(False)
         self.EnableDragRowSize(False)
-        self.EnableDragColSize(True)
+        self.EnableDragColSize(False)
         self.HideRowLabels()
 
+        #
+        self.Bind(wx.grid.EVT_GRID_LABEL_LEFT_DCLICK, self.OnDoubleClick)
+        self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.OnResizeCol)
+
+        # self.AutoSizeColumn()
 
         self.SetColLabelValue(0, "LHS")
-        self.SetColLabelValue(1, "Operator")
+        self.SetColLabelValue(1, "Op")
         self.SetColLabelValue(2, "RHS")
+
+    def OnDoubleClick(self, event):
+        pass
+
+    def OnResizeCol(self, event):
+        self.SetColSize(0, 139.5)
+        self.SetColSize(1, 30)
+        self.SetColSize(2, 139.5)
+        return
 
     def AddFD(self, LHS, operator, RHS):
 
