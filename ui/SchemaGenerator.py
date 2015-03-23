@@ -47,8 +47,8 @@ class MainFrame(wx.Frame) :
         rbPanel = wx.Panel(self)
         self.rb1 = wx.RadioButton(rbPanel, -1, '2NF',(10,0), style=wx.RB_GROUP)
         self.rb2 = wx.RadioButton(rbPanel, -1, '3NF',(120,0))
-        self.rb3 = wx.RadioButton(rbPanel, -1, 'BCNF',(230,0))
-        self.rb4 = wx.RadioButton(rbPanel, -1, '4NF', (340,0))
+        self.rb4 = wx.RadioButton(rbPanel, -1, 'EKNF', (230,0))
+        self.rb3 = wx.RadioButton(rbPanel, -1, 'BCNF',(340,0))
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb1.GetId())
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb2.GetId())
         self.Bind(wx.EVT_RADIOBUTTON, self.OnRadioButton, id=self.rb3.GetId())
@@ -146,6 +146,7 @@ class MainFrame(wx.Frame) :
         sizer9.Add(generateButton, 1, wx.LEFT, 150)
 
         exitButton = wx.Button(self, -1, "Exit")
+        self.Bind(wx.EVT_BUTTON, self.OnExit, exitButton)
         sizer9.Add(exitButton, 1 , wx.RIGHT | wx.LEFT, 25)
 
         mainSizer.Add(sizer9,1, wx.EXPAND | wx.TOP | wx.BOTTOM, 20)
@@ -228,13 +229,13 @@ class MainFrame(wx.Frame) :
             self.childView.ShowModal()
 
     def OnFDDelete(self, event):
-        if len(self.schemaTable.GetSelectedRows()) == 0 :
+        if len(self.fdTable.GetSelectedRows()) == 0 :
             dlg = wx.MessageDialog(self, "No Row Selected", "ERROR", wx.OK)
             dlg.ShowModal()
         else :
-            rows = self.schemaTable.GetSelectedRows()
+            rows = self.fdTable.GetSelectedRows()
             for i in rows :
-                self.schemaTable.DeleteRows(i)
+                self.fdTable.DeleteRows(i)
 
     def OnGenerate(self, event):
 
@@ -477,7 +478,7 @@ class AddFDDomainDialog(wx.Dialog) :
         self.Bind(wx.EVT_BUTTON, self.OnAttrClear, RHSClearButton)
 
 
-        operator = ["->" , "->>"]
+        operator = ["->"]
         self.operatorComboBox = wx.ComboBox(self, -1, choices = operator, style = wx.CB_READONLY)
         addButton = None
         if self.rowNo == -1 :
