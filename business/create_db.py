@@ -26,31 +26,24 @@ def create_schema(relations,datatype_dict):
         primary_key = relation.primary_key
         attributes = relation.attributes
 
-## get primary key since there is only one element in frozenset
-        my_pkey = ''
-        for pkey in primary_key:
-            my_pkey = pkey
-
-
 ## create attributes
-        size = len(attributes)
-        attr_count = 0
         for attr in attributes:
-            attr_count = attr_count + 1
             datatype = datatype_dict.get(attr)
-## create primary key
-            if attr == my_pkey:
-                if attr_count < size:
-                    line = str(attr) + ' ' + datatype + ' primary key,'
-                else:
-                    line = str(attr) + ' ' + datatype + ' primary key);'
-## create other attributes
-            else:
-                if attr_count < size:
-                    line = str(attr)  + ' ' + datatype + ' ,'
-                else:
-                    line = str(attr)  + ' ' + datatype + ' );'
+            line = str(attr) + ' ' + datatype + ', '
             cmd = cmd + line
+            
+## create primary key
+        temp = ''
+        size = len(primary_key)
+        pkey_count = 0
+        for pkey in primary_key:
+            pkey_count = pkey_count + 1
+            if pkey_count < size:
+                temp = temp + pkey + ','
+            else:
+                temp = temp + pkey
+        cmd = cmd + 'PRIMARY KEY (' + temp + '));'
+        
         mycursor.execute(cmd)
         print 'cmd BEFORE fkey: ',cmd
         cmd = ''
@@ -67,10 +60,20 @@ def create_schema(relations,datatype_dict):
             
             for fkey_rel in fkey_rel_lst:
                 for fkey,rellst in fkey_rel.iteritems():
+                    temp = ''
+                    size = len(fkey)
+                    key_count = 0
+                    
                     for key in fkey:
+                        key_count = key_count + 1
+                        if key_count < size:
+                            temp = temp + key + ','
+                        else:
+                            temp = temp + key
+                            
                         relnum = rellst[0]
                         rel_name = create_relation_name(relnum)
-                        cmd = 'ALTER TABLE ' + r_name + ' add FOREIGN KEY ('+str(key)+') REFERENCES '+rel_name+'('+str(key)+');'
+                        cmd = 'ALTER TABLE ' + r_name + ' add FOREIGN KEY ('+temp+') REFERENCES '+rel_name+'('+temp+');'
                         print 'cmd FOREIGN KEY: ',cmd
                         mycursor.execute(cmd)
 
@@ -129,6 +132,5 @@ r1 = Relation({'A','B','C'},{'A'})
 r2 = Relation({'B','D','A'},{'B'})
 r3 = Relation({'D','E'},{'D'})
 myrelations = [r1,r2,r3]
-
-create_schema(myrelations)
-
+datatypes = {'A':'int', 'B': 'varchar(255)', 'C': 'int', 'D':'date', 'E':'int'}
+create_schema(myrelations,datatypes)
