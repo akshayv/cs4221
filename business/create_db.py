@@ -7,7 +7,7 @@ import mysql.connector
 ##from domain.FunctionalDependency import FunctionalDependency
 from domain.myRelation import Relation
 
-def create_schema(relations):
+def create_schema(relations,datatype_dict):
 ## connect with mysql
     uname = ''
     pwd = ''
@@ -37,18 +37,19 @@ def create_schema(relations):
         attr_count = 0
         for attr in attributes:
             attr_count = attr_count + 1
+            datatype = datatype_dict.get(attr)
 ## create primary key
             if attr == my_pkey:
                 if attr_count < size:
-                    line = str(attr) + ' int primary key,'
+                    line = str(attr) + ' ' + datatype + ' primary key,'
                 else:
-                    line = str(attr) + ' int primary key);'
+                    line = str(attr) + ' ' + datatype + ' primary key);'
 ## create other attributes
             else:
                 if attr_count < size:
-                    line = str(attr) + ' int,'
+                    line = str(attr)  + ' ' + datatype + ' ,'
                 else:
-                    line = str(attr) + ' int);'
+                    line = str(attr)  + ' ' + datatype + ' );'
             cmd = cmd + line
         mycursor.execute(cmd)
         print 'cmd BEFORE fkey: ',cmd
