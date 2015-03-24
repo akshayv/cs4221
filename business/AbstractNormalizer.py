@@ -1,6 +1,7 @@
 from business import KeysRetriever
 from domain.FunctionalDependency import FunctionalDependency
 from domain.Key import Key
+import itertools
 from domain.Relation import Relation
 
 __author__ = 'akshay'
@@ -95,8 +96,8 @@ class AbstractNormalizer:
 
     @staticmethod
     def normalize(relation, requirements):
-        relation.functional_deps = AbstractNormalizer.separate_functional_deps(relation.functional_deps)
-        relation.functional_deps = AbstractNormalizer.expand_functional_deps(relation.functional_deps)
+        relation.functional_deps = AbstractNormalizer.expand_functional_deps(relation.functional_deps,
+                                                                             relation.attributes)
         relations = [relation]
         iterator = 0
         while iterator < len(relations):
@@ -123,80 +124,44 @@ class AbstractNormalizer:
         return relations
 
     @staticmethod
-    def expand_functional_deps(functional_deps):
+    def expand_functional_deps(functional_deps, attributes):
         functional_deps_list = []
-        functional_deps_list.extend(functional_deps)
+        all_subsets = AbstractNormalizer.find_all_subsets(attributes)
+        all_subsets.sort(lambda x, y: cmp(len(x), len(y)))
+        for subset in all_subsets:
+            closure = KeysRetriever.find_closure(subset, functional_deps)
+            functional_deps_list.append(FunctionalDependency(set().union(subset), closure))
 
-        # Reflexivity
-        functional_deps_list.sort(lambda x, y: cmp(len(x.lhs_attributes), len(y.lhs_attributes)))
-        for i in range(0, len(functional_deps_list)):
-            for j in range(0, i):
-                if (len(functional_deps_list[j].lhs_attributes - functional_deps_list[i].lhs_attributes) == 0
-                    and len(functional_deps_list[j].rhs_attributes - functional_deps_list[i].lhs_attributes) == 0):
-                    functional_deps_list.append(FunctionalDependency(
-                        functional_deps_list[i].lhs_attributes - functional_deps_list[j].rhs_attributes,
-                        functional_deps_list[i].rhs_attributes))
-
-        # Augmentation
+        functional_deps_list = list(AbstractNormalizer.separate_functional_deps(functional_deps_list))
         functional_deps_list.sort(lambda x, y: cmp(len(x.lhs_attributes), len(y.lhs_attributes)))
 
+        # Remove duplicates, redundant and trivial
         i = 0
         while i < len(functional_deps_list):
             dep_i = functional_deps_list[i]
             j = 0
-            while j < len(functional_deps_list):
-                dep_j = functional_deps_list[j]
-                if i != j and dep_i.lhs_attributes != dep_j.lhs_attributes and len(
-                                dep_i.lhs_attributes - dep_j.lhs_attributes) == 0:
-                    new_dep = FunctionalDependency(
-                        dep_i.lhs_attributes.union(dep_j.lhs_attributes - dep_i.lhs_attributes),
-                        dep_i.rhs_attributes.union(dep_j.rhs_attributes - dep_i.rhs_attributes))
-                    already_contained = False
-                    for k in range(0, len(functional_deps_list)):
-                        dep_k = functional_deps_list[k]
-                        if dep_k.lhs_attributes == new_dep.lhs_attributes and dep_k.rhs_attributes == new_dep.rhs_attributes:
-                            already_contained = True
-                    if not already_contained:
-                        functional_deps_list.append(new_dep)
-                j += 1
-            i += 1
 
-        # Transitivity
-        i = 0
-        while i < len(functional_deps_list):
-            dep_i = functional_deps_list[i]
-            j = 0
-            while j < len(functional_deps_list):
-                dep_j = functional_deps_list[j]
-                if i != j and dep_i.rhs_attributes == dep_j.lhs_attributes:
-                    new_dep = FunctionalDependency(
-                        dep_i.lhs_attributes, dep_j.rhs_attributes)
-                    already_contained = False
-                    for k in range(0, len(functional_deps_list)):
-                        dep_k = functional_deps_list[k]
-                        if dep_k.lhs_attributes == new_dep.lhs_attributes and dep_k.rhs_attributes == new_dep.rhs_attributes:
-                            already_contained = True
-                    if not already_contained:
-                        functional_deps_list.append(new_dep)
-                j += 1
-            i += 1
-
-        # Remove duplicates and trivial
-        i = 0
-        while i < len(functional_deps_list):
-            dep_i = functional_deps_list[i]
-            j = 0
             if len(dep_i.rhs_attributes - dep_i.lhs_attributes) == 0:
                 functional_deps_list.pop(i)
                 continue
             while j < len(functional_deps_list):
                 dep_j = functional_deps_list[j]
-                if i != j and dep_j.lhs_attributes == dep_i.lhs_attributes and dep_j.rhs_attributes == dep_i.rhs_attributes:
+                if i != j and (dep_j.lhs_attributes == dep_i.lhs_attributes and dep_j.rhs_attributes == dep_i.rhs_attributes):
+                    functional_deps_list.pop(j)
+                if i < j and len(dep_j.lhs_attributes.intersection(dep_i.lhs_attributes)) is not 0 \
+                        and dep_i.rhs_attributes == dep_j.rhs_attributes:
                     functional_deps_list.pop(j)
                 j += 1
             i += 1
-
         return functional_deps_list
+
+
+    @staticmethod
+    def find_all_subsets(attributes_set):
+        all_subsets = []
+        for i in range(1, len(attributes_set) + 1):
+            all_subsets.extend(set(itertools.combinations(attributes_set, i)))
+        return all_subsets
 
 
 if __name__ == "__main__":
@@ -209,7 +174,7 @@ if __name__ == "__main__":
     print "\nTest is_prime_attribute (expected False, True)"
     print AbstractNormalizer.is_prime_attribute(FunctionalDependency({}, {'e'}), [Key({'a', 'b'}), Key({'c', 'd'})])
     print AbstractNormalizer.is_prime_attribute(FunctionalDependency({}, {'a', 'c'}),
-                                                  [Key({'a', 'b'}), Key({'c', 'd'})])
+        [Key({'a', 'b'}), Key({'c', 'd'})])
 
     # Test is functional dependency trivial method
     print "\nTest is_trivial (expected True, False, False, True)"
@@ -218,7 +183,7 @@ if __name__ == "__main__":
     print AbstractNormalizer.is_trivial(FunctionalDependency({'a'}, {'a', 'b'}), {})
     print AbstractNormalizer.is_trivial(FunctionalDependency({'a', 'b'}, {'a'}), {})
 
-    #Test is superkey method
+    # Test is superkey method
     print "\nTest is_x_superkey (expected True, False, False)"
     print AbstractNormalizer.is_x_superkey(FunctionalDependency({'a', 'b', 'c'}, {}),
                                            [Key({'a', 'b'}), Key({'c', 'd'})])
