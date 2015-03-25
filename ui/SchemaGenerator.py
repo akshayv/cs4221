@@ -270,13 +270,13 @@ class MainFrame(wx.Frame) :
                 self.fdList.append(tmp)
 
         print self.schemaList
-<<<<<<< .merge_file_F9AJYy
+# <<<<<<< .merge_file_F9AJYy
         if self.fdList == None :
             print self.fdList
-=======
+# =======
         print self.fdList
         MainFrame.schemaList = self.schemaList
->>>>>>> .merge_file_LnKuQl
+# >>>>>>> .merge_file_LnKuQl
         self.runLogic()
 
     def runLogic(self):
@@ -301,8 +301,6 @@ class MainFrame(wx.Frame) :
         soln = normalize_relation(self.relation, self.NF)
 
 
-        print soln
-        print soln[0].primary_key
         self.ReflectResultToUser(soln)
 
 
@@ -319,9 +317,9 @@ class MainFrame(wx.Frame) :
         elif event.GetId() == self.rb2.GetId() :
             self.NF = "3nf"
         elif event.GetId() == self.rb3.GetId() :
-            self.NF = "bcnf"
+            self.NF = "eknf"
         elif event.GetId() == self.rb4.GetId() :
-            self.NF = "4NF"
+            self.NF = "bcnf"
         else :
             self.NF = "NIL"
 
@@ -602,10 +600,13 @@ class AddFDDomainDialog(wx.Dialog) :
 
     def OnCancel(self, event):
         self.EndModal(0)
+        frame.childView= None
         self.Close()
 
     def OnOK(self, event):
         self.OnSave(event)
+        self.EndModal(0)
+        frame.childView= None
         self.Close(True)
 
     def OnAttrAdd(self, event):
@@ -695,10 +696,11 @@ class AddAttrDialog(wx.Dialog) :
     def OnOK(self,event):
         if self.AttrComboBox.GetValue() != None and self.AttrComboBox.GetValue() != "" :
             frame.childView.AddAttrToList(self.AttrComboBox.GetValue(), self.index)
-        # self.EndModal(0)
+        self.EndModal(0)
         # frame.childView.ShowModal()
         self.Close(True)
     def OnCancel(self,event):
+        self.EndModal(0)
         self.Close(True)
 
 class resultDialog(wx.Dialog) :
@@ -740,6 +742,7 @@ class resultDialog(wx.Dialog) :
 
     def OnCancel(self, event):
         self.EndModal(0)
+        frame.childView= None
         self.Close(True)
 
     def OnClose(self, event):
@@ -883,7 +886,7 @@ class SelectAttrTable(wx.grid.Grid) :
                 attrList.remove(i)
         return attrList
 
-<<<<<<< .merge_file_F9AJYy
+# <<<<<<< .merge_file_F9AJYy
 class resultSchemaTable(wx.grid.Grid) :
     def __init__(self, parent):
         wx.grid.Grid.__init__(self, parent, -1, size = wx.Size(300, 200))
@@ -901,7 +904,7 @@ class resultSchemaTable(wx.grid.Grid) :
         self.AppendRows(1)
         self.SetCellValue(self.GetNumberRows()-1, 0, attrName)
 
-=======
+# =======
 class CreateRelationDialog(wx.Frame):
 
     relations = None
@@ -957,7 +960,7 @@ class CreateRelationDialog(wx.Frame):
         wx.MessageBox('Schema Created!', 'Info',
             wx.OK | wx.ICON_INFORMATION)
         self.OnClose(None)
->>>>>>> .merge_file_LnKuQl
+# >>>>>>> .merge_file_LnKuQl
 
 app = wx.App(False)
 frame = MainFrame(None, "SchemaBuilder")
