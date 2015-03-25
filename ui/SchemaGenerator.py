@@ -270,13 +270,10 @@ class MainFrame(wx.Frame) :
                 self.fdList.append(tmp)
 
         print self.schemaList
-# <<<<<<< .merge_file_F9AJYy
         if self.fdList == None :
             print self.fdList
-# =======
         print self.fdList
         MainFrame.schemaList = self.schemaList
-# >>>>>>> .merge_file_LnKuQl
         self.runLogic()
 
     def runLogic(self):
@@ -706,6 +703,7 @@ class AddAttrDialog(wx.Dialog) :
 class resultDialog(wx.Dialog) :
 
     def __init__(self, soln):
+        resultDialog.soln = soln
         wx.Dialog.__init__(self, frame.childView, -1, "Result", size = wx.Size(400, 400))
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         firstLineText = wx.StaticBox(self, label =  "Suggested Schema: ")
@@ -738,7 +736,7 @@ class resultDialog(wx.Dialog) :
         self.SetSizer(mainSizer)
 
     def OnCreate(self, event):
-        return
+        CreateRelationDialog(resultDialog.soln, self)
 
     def OnCancel(self, event):
         self.EndModal(0)
@@ -886,7 +884,6 @@ class SelectAttrTable(wx.grid.Grid) :
                 attrList.remove(i)
         return attrList
 
-# <<<<<<< .merge_file_F9AJYy
 class resultSchemaTable(wx.grid.Grid) :
     def __init__(self, parent):
         wx.grid.Grid.__init__(self, parent, -1, size = wx.Size(300, 200))
@@ -904,16 +901,16 @@ class resultSchemaTable(wx.grid.Grid) :
         self.AppendRows(1)
         self.SetCellValue(self.GetNumberRows()-1, 0, attrName)
 
-# =======
 class CreateRelationDialog(wx.Frame):
 
     relations = None
     usernameText=None
     pwdText=None
 
-    def __init__(self, relations):
+    def __init__(self, relations, parent):
         self.relations = relations
-        super(CreateRelationDialog, self).__init__(None)
+        wx.Frame.__init__(self, parent, -1)
+        # super(CreateRelationDialog, self).__init__(None)
         self.InitUI()
 
     def InitUI(self):
@@ -960,7 +957,6 @@ class CreateRelationDialog(wx.Frame):
         wx.MessageBox('Schema Created!', 'Info',
             wx.OK | wx.ICON_INFORMATION)
         self.OnClose(None)
-# >>>>>>> .merge_file_LnKuQl
 
 app = wx.App(False)
 frame = MainFrame(None, "SchemaBuilder")
