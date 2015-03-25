@@ -717,7 +717,9 @@ class resultDialog(wx.Dialog) :
             for attr in i.attributes :
                 relationString += str(attr) + ", "
             relationString = relationString[:len(relationString)-2]
-            resultList.addAttr(rname + relationString + ")")
+            displayString = rname + relationString + ")"
+            displayString = displayString + "; PK: " + str(i.primary_key)
+            resultList.addAttr(displayString)
             relationCount += 1
 
         CreateButton = wx.Button(self, -1, "Create")
