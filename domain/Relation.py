@@ -15,3 +15,4 @@ class Relation:
     def __repr__(self):
         return "Relation = [primary_key: " + str(self.primary_key) + ", attributes: " + str(
             self.attributes) + ", functional_deps: " + str(self.functional_deps) + " ]"
+

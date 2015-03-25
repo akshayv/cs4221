@@ -270,13 +270,13 @@ class MainFrame(wx.Frame) :
                 self.fdList.append(tmp)
 
         print self.schemaList
-<<<<<<< .merge_file_F9AJYy
+<<<<<<< HEAD
         if self.fdList == None :
             print self.fdList
 =======
         print self.fdList
         MainFrame.schemaList = self.schemaList
->>>>>>> .merge_file_LnKuQl
+>>>>>>> 02735fd902a841927ab10e518bb9ec92e9cf64c6
         self.runLogic()
 
     def runLogic(self):
@@ -883,7 +883,7 @@ class SelectAttrTable(wx.grid.Grid) :
                 attrList.remove(i)
         return attrList
 
-<<<<<<< .merge_file_F9AJYy
+<<<<<<< HEAD
 class resultSchemaTable(wx.grid.Grid) :
     def __init__(self, parent):
         wx.grid.Grid.__init__(self, parent, -1, size = wx.Size(300, 200))
@@ -957,7 +957,7 @@ class CreateRelationDialog(wx.Frame):
         wx.MessageBox('Schema Created!', 'Info',
             wx.OK | wx.ICON_INFORMATION)
         self.OnClose(None)
->>>>>>> .merge_file_LnKuQl
+>>>>>>> 02735fd902a841927ab10e518bb9ec92e9cf64c6
 
 app = wx.App(False)
 frame = MainFrame(None, "SchemaBuilder")
