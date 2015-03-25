@@ -1,4 +1,4 @@
-from business import create_db
+# from business import create_db
 from business.BCNFNormalizer import BCNFNormalizer
 from business.EKNFNormalizer import EKNFNormalizer
 from business.ThreeNFNormalizer import ThreeNFNormalizer
@@ -21,8 +21,9 @@ def normalize_relation(relation, normal_form):
     else:
         raise Exception("Not Supported")
 
-def create_schema(relations, attribute_types):
-    create_db.create_schema(relations, attribute_types)
+def create_schema(relations, attribute_types, username, password):
+    # create_db.create_schema(relations, attribute_types, username, password)
+    pass
 
 if __name__ == "__main__":
     relation = Relation({'a', 'b'},

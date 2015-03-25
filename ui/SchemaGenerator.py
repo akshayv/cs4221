@@ -6,6 +6,7 @@ import wx.grid
 from domain.FunctionalDependency import FunctionalDependency
 from domain.Relation import Relation
 from api.GUIApi import normalize_relation
+from api.GUIApi import create_schema
 
 
 class MainFrame(wx.Frame) :
@@ -267,6 +268,7 @@ class MainFrame(wx.Frame) :
 
         print self.schemaList
         print self.fdList
+        MainFrame.schemaList = self.schemaList
         self.runLogic()
 
     def runLogic(self):
@@ -811,7 +813,60 @@ class SelectAttrTable(wx.grid.Grid) :
                 attrList.remove(i)
         return attrList
 
+class CreateRelationDialog(wx.Frame):
+
+    relations = None
+    usernameText=None
+    pwdText=None
+
+    def __init__(self, relations):
+        self.relations = relations
+        super(CreateRelationDialog, self).__init__(None)
+        self.InitUI()
+
+    def InitUI(self):
+
+        self.SetSize((300, 120))
+        self.SetTitle('Database credentials')
+        self.Centre()
+        panel = wx.Panel(self, -1)
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        usernameLabel = wx.StaticText(panel, -1, "Username:")
+        self.usernameText = wx.TextCtrl(panel, -1, "Enter Username Here", size=(175, -1))
+        self.usernameText.SetInsertionPoint(0)
+
+        pwdLabel = wx.StaticText(panel, -1, "Password:")
+        self.pwdText = wx.TextCtrl(panel, -1, "password", size=(175, -1),style=wx.TE_PASSWORD)
+
+        sizer = wx.FlexGridSizer(cols=2, hgap=6, vgap=6)
+        sizer.AddMany([usernameLabel, self.usernameText, pwdLabel, self.pwdText])
+        panel.SetSizer(sizer)
+
+        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
+        okButton = wx.Button(self, -1,  label='Create')
+        okButton.Bind(wx.EVT_BUTTON, self.createRelations)
+        hbox2.Add(okButton)
+
+        vbox.Add(panel, proportion=1,
+            flag=wx.ALL|wx.EXPAND, border=5)
+        vbox.Add(hbox2,
+            flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
+
+        # sizer.Add(okButton)
+        self.SetSizer(vbox)
+
+        self.Show(True)
+
+    def OnClose(self, e):
+        self.Destroy()
+
+    def createRelations(self, event):
+        attr_types = {}
+        for i in MainFrame.schemaList:
+            attr_types[i["name"]] = i["type"]
+        create_schema(self.relations, attr_types, self.usernameText.GetValue(), self.pwdText.GetValue())
+
 app = wx.App(False)
-frame = MainFrame(None, "SchemaGenerator" )
+frame = MainFrame(None, "SchemaBuilder")
 
 app.MainLoop()
