@@ -1,4 +1,4 @@
-# from business import create_db
+from business import create_db
 from business.BCNFNormalizer import BCNFNormalizer
 from business.EKNFNormalizer import EKNFNormalizer
 from business.ThreeNFNormalizer import ThreeNFNormalizer
@@ -22,14 +22,15 @@ def normalize_relation(relation, normal_form):
         raise Exception("Not Supported")
 
 def create_schema(relations, attribute_types, username, password):
-    # create_db.create_schema(relations, attribute_types, username, password)
-    pass
+    create_db.create_schema(relations, attribute_types, username, password)
 
 if __name__ == "__main__":
-    relation = Relation({'a', 'b'},
+    relation = Relation({'a', 'b', 'c'},
                         {FunctionalDependency({'a'}, {'b'}), FunctionalDependency({'a'}, {'c'})})
     relations = normalize_relation(relation, "2nf")
     for relation in relations:
         print relation
+
+    create_db.create_schema(relations, {'a': 'int', 'b': 'int', 'c': 'int'}, '', '')
 
     # normalize_relation(relation, "4nf")
