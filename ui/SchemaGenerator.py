@@ -718,7 +718,9 @@ class resultDialog(wx.Dialog) :
                 relationString += str(attr) + ", "
             relationString = relationString[:len(relationString)-2]
             displayString = rname + relationString + ")"
-            displayString = displayString + "; PK: " + str(i.primary_key)
+            s = str(i.primary_key).replace("set(['", "").replace("'])", "").replace("', '", ",")
+            s = s.replace("set([u'", "").replace("', u'", ",")
+            displayString = displayString + "; PK: " + s
             resultList.addAttr(displayString)
             relationCount += 1
 
