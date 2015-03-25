@@ -33,7 +33,7 @@ def create_schema(relations,datatype_dict, username ,password):
         temp = ''
         size = len(primary_key)
         pkey_count = 0
-        for pkey in primary_key:
+        for pkey in primary_key.attributes:
             pkey_count = pkey_count + 1
             if pkey_count < size:
                 temp = temp + pkey + ','
@@ -86,7 +86,7 @@ def find_fkey_reln(relations):
 
     for relation in relations:
         counter = counter + 1
-        primary_key = relation.primary_key
+        primary_key = relation.primary_key.attributes
         attributes = relation.attributes
         non_key = attributes - primary_key
 
