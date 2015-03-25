@@ -159,7 +159,7 @@ class MainFrame(wx.Frame) :
         self.SetAutoLayout(1)
         self.Show(True)
 
-        self.NF = "NONE"
+        self.NF = "NIL"
         self.childView = None
 
     def OnAbout(self, event):
@@ -285,16 +285,17 @@ class MainFrame(wx.Frame) :
             relationSet.add(i["name"])
 
         fdSet = set()
-        for i in self.fdList :
-            lhs = set()
-            rhs = set()
-            for j in i["lhs"].split(", ") :
-                if j != "" :
-                    lhs.add(j)
-            for k in i["rhs"].split(", ") :
-                if k != "" :
-                    rhs.add(k)
-            fdSet.add(FunctionalDependency(lhs,rhs))
+        if self.fdList != None :
+            for i in self.fdList :
+                lhs = set()
+                rhs = set()
+                for j in i["lhs"].split(", ") :
+                    if j != "" :
+                        lhs.add(j)
+                for k in i["rhs"].split(", ") :
+                    if k != "" :
+                        rhs.add(k)
+                fdSet.add(FunctionalDependency(lhs,rhs))
 
         self.relation = Relation(relationSet, fdSet)
 
@@ -327,9 +328,9 @@ class MainFrame(wx.Frame) :
         print self.NF
 
     def OnHelp(self, event):
-        helpMsg = "How To Use Schema Generator: \n Step1 : Add the domains involved in your database relation. \n Step2: Add the functional dependencies which apply to your database" \
-                  " \n Step3 : Select the normal form that "
-        dlg = wx.MessageDialog(self, "How To Use Schema Builder \n lalal", "HELP", wx.OK)
+        helpMsg = "How To Use Schema Builder: \n Step1 : Add the domains involved in your database relation. \n Step2: Add the functional dependencies which apply to your database" \
+                  " \n Step3 : Select the appropriate normal form. \n Step4 : Generate the relations and create database. "
+        dlg = wx.MessageDialog(self, helpMsg, "HELP", wx.OK)
         dlg.ShowModal()
 
 
@@ -476,7 +477,7 @@ class EditDomainDialog(wx.Dialog) :
 class AddFDDomainDialog(wx.Dialog) :
     def __init__(self, rowNo):
         self.rowNo = rowNo
-        wx.Dialog.__init__(self,frame,-1,"AddFDDialog")
+        wx.Dialog.__init__(self,frame,-1,"AddFDDialog", size = wx.Size(330,400))
         LHSPanel = wx.Panel(self)
         LHSLabel = wx.StaticText(LHSPanel, label = "LHS: ", style = wx.ALIGN_CENTER)
         RHSPanel = wx.Panel(self)
@@ -529,7 +530,7 @@ class AddFDDomainDialog(wx.Dialog) :
         RHSSizer_1 = wx.BoxSizer()
         RHSSizer_2 = wx.BoxSizer()
         RHSSizer_1.Add(RHSPanel)
-        RHSSizer_2.Add(self.RHSList)
+        RHSSizer_2.Add(self.RHSList,1,wx.EXPAND)
         RHSSizer.Add(RHSSizer_1)
         RHSSizer.Add(RHSSizer_2)
         RHSSizer.Add(RHSAddButton, 1, wx.TOP|wx.BOTTOM, 5)
@@ -546,13 +547,13 @@ class AddFDDomainDialog(wx.Dialog) :
 
         sizer2 = wx.BoxSizer(wx.HORIZONTAL)
         if addButton != None :
-            sizer2.Add(addButton, 1, wx.EXPAND | wx.ALL, 20)
-        sizer2.Add(okButton, 1, wx.EXPAND | wx.ALL, 20)
-        sizer2.Add(cancelButton, 1, wx.EXPAND | wx.ALL, 20)
+            sizer2.Add(addButton, 1, wx.EXPAND | wx.ALL, 8)
+        sizer2.Add(okButton, 1, wx.EXPAND | wx.ALL, 8)
+        sizer2.Add(cancelButton, 1, wx.EXPAND | wx.ALL, 8)
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
         mainSizer.Add(inputSizer, 1, wx.EXPAND | wx.ALL, 20)
-        mainSizer.Add(sizer2, 1, wx.EXPAND)
+        mainSizer.Add(sizer2, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 12)
 
         if self.rowNo != -1 :
             LList = frame.fdTable.GetCellValue(self.rowNo, 0).split(", ")
@@ -564,7 +565,7 @@ class AddFDDomainDialog(wx.Dialog) :
             self.operatorComboBox.SetValue(frame.fdTable.GetCellValue(self.rowNo, 1))
 
         self.SetSizer(mainSizer)
-        self.Fit()
+        # self.Fit()
 
     def OnSave(self, event):
         LHS = self.LHSList.GetExistAttr()
@@ -856,14 +857,18 @@ class FDTable(wx.grid.Grid) :
 
 class SelectAttrTable(wx.grid.Grid) :
     def __init__(self, parent) :
-        wx.grid.Grid.__init__(self, parent, -1, size = (100, 130))
+        wx.grid.Grid.__init__(self, parent, -1, size = (85, 130))
         self.SetDefaultCellBackgroundColour(wx.Colour(0,0,0,0))
         self.CreateGrid(0,1)
         self.EnableEditing(False)
         self.EnableDragCell(False)
         self.EnableDragColSize(False)
         self.EnableDragRowSize(False)
+        self.SetColSize(0, 85)
         self.HideRowLabels()
+        self.AppendRows(1)
+        self.DeleteRows(0)
+
 
     def addAttr(self, attrName):
         self.AppendRows(1)
