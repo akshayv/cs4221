@@ -18,7 +18,7 @@ class AbstractNormalizer:
             if len(functional_dep.rhs_attributes) > 1:
                 for rhs_attribute in functional_dep.rhs_attributes:
                     separated_functional_deps.add(
-                        FunctionalDependency(functional_dep.lhs_attributes, set(rhs_attribute)))
+                        FunctionalDependency(functional_dep.lhs_attributes, {rhs_attribute}))
             else:
                 separated_functional_deps.add(functional_dep)
         return separated_functional_deps
