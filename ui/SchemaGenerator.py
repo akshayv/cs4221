@@ -865,6 +865,9 @@ class CreateRelationDialog(wx.Frame):
         for i in MainFrame.schemaList:
             attr_types[i["name"]] = i["type"]
         create_schema(self.relations, attr_types, self.usernameText.GetValue(), self.pwdText.GetValue())
+        wx.MessageBox('Schema Created!', 'Info',
+            wx.OK | wx.ICON_INFORMATION)
+        self.OnClose(None)
 
 app = wx.App(False)
 frame = MainFrame(None, "SchemaBuilder")
