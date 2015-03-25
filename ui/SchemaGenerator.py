@@ -13,6 +13,8 @@ class MainFrame(wx.Frame) :
         wx.Frame.__init__(self, parent, title = title, style = wx.CLOSE_BOX ,size = wx.Size(500, 590))
         self.relation = None
         self.NF = "NIL"
+        self.fdList = None
+        self.schemaList = None
 
         filemenu = wx.Menu()
         menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
@@ -140,12 +142,14 @@ class MainFrame(wx.Frame) :
         sizer9 = wx.BoxSizer(wx.HORIZONTAL)
         helpButton = wx.Button(self, -1, "Help")
         sizer9.Add(helpButton, 1, wx.LEFT, 25)
+        self.Bind(wx.EVT_BUTTON, self.OnHelp, helpButton)
 
         generateButton = wx.Button(self, -1, "Generate")
         self.Bind(wx.EVT_BUTTON, self.OnGenerate, generateButton)
         sizer9.Add(generateButton, 1, wx.LEFT, 150)
 
         exitButton = wx.Button(self, -1, "Exit")
+        self.Bind(wx.EVT_BUTTON, self.OnExit, exitButton)
         sizer9.Add(exitButton, 1 , wx.RIGHT | wx.LEFT, 25)
 
         mainSizer.Add(sizer9,1, wx.EXPAND | wx.TOP | wx.BOTTOM, 20)
@@ -180,8 +184,8 @@ class MainFrame(wx.Frame) :
             self.fdTable.AddFD(LHS, operator,RHS)
 
     def EditTuple(self, rowNo, domainName, dataType):
-        self.schemaTable.SetCellValue(rowNo, 1, domainName)
-        self.schemaTable.SetCellValue(rowNo, 2, dataType)
+        self.schemaTable.SetCellValue(rowNo, 0, domainName)
+        self.schemaTable.SetCellValue(rowNo, 1, dataType)
 
     def OnDeleteDomain(self, event):
         if len(self.schemaTable.GetSelectedRows()) == 0 :
@@ -265,7 +269,8 @@ class MainFrame(wx.Frame) :
                 self.fdList.append(tmp)
 
         print self.schemaList
-        print self.fdList
+        if self.fdList == None :
+            print self.fdList
         self.runLogic()
 
     def runLogic(self):
@@ -289,7 +294,17 @@ class MainFrame(wx.Frame) :
 
         soln = normalize_relation(self.relation, self.NF)
 
+
         print soln
+        print soln[0].primary_key
+        self.ReflectResultToUser(soln)
+
+
+    def ReflectResultToUser(self, soln):
+
+        self.childView = resultDialog(soln)
+        self.childView.ShowModal()
+
 
 
     def OnRadioButton(self, event):
@@ -306,6 +321,12 @@ class MainFrame(wx.Frame) :
 
 
         print self.NF
+
+    def OnHelp(self, event):
+        helpMsg = "How To Use Schema Generator: \n Step1 : Add the domains involved in your database relation. \n Step2: Add the functional dependencies which apply to your database" \
+                  " \n Step3 : Select the normal form that "
+        dlg = wx.MessageDialog(self, "How To Use Schema Builder \n lalal", "HELP", wx.OK)
+        dlg.ShowModal()
 
 
 class AddDomainDialog(wx.Dialog) :
@@ -674,6 +695,52 @@ class AddAttrDialog(wx.Dialog) :
     def OnCancel(self,event):
         self.Close(True)
 
+class resultDialog(wx.Dialog) :
+
+    def __init__(self, soln):
+        wx.Dialog.__init__(self, frame.childView, -1, "Result", size = wx.Size(400, 400))
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+        firstLineText = wx.StaticBox(self, label =  "Suggested Schema: ")
+
+        resultList = resultSchemaTable(self)
+        relationCount = 1;
+        for i in soln :
+            relationString = ""
+            rname = "R" + str(relationCount) + " : ("
+            for attr in i.attributes :
+                relationString += str(attr) + ", "
+            relationString = relationString[:len(relationString)-2]
+            resultList.addAttr(rname + relationString + ")")
+            relationCount += 1
+
+        CreateButton = wx.Button(self, -1, "Create")
+        self.Bind(wx.EVT_BUTTON, self.OnCreate, CreateButton)
+        CancelButton = wx.Button(self,-1,"Cancel")
+        self.Bind(wx.EVT_BUTTON, self.OnCancel, CancelButton)
+
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        mainSizer.Add(firstLineText,1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, 30)
+        mainSizer.Add(resultList, 1, wx.EXPAND|wx.ALL, 30)
+
+        buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
+        buttonSizer.Add(CreateButton, 1, wx.LEFT | wx.RIGHT, 30)
+        buttonSizer.Add(CancelButton, 1,wx.RIGHT | wx.LEFT, 30)
+        mainSizer.Add(buttonSizer, 1, wx.EXPAND|wx.BOTTOM, 25)
+
+        self.SetSizer(mainSizer)
+
+    def OnCreate(self, event):
+        return
+
+    def OnCancel(self, event):
+        self.EndModal(0)
+        self.Close(True)
+
+    def OnClose(self, event):
+        self.EndModal(0)
+        frame.childView= None
+        self.Destroy()
+
 class SchemaTable(wx.grid.Grid) :
     def __init__(self, parent):
         wx.grid.Grid.__init__(self,parent,-1, size = (500, 130))
@@ -809,6 +876,24 @@ class SelectAttrTable(wx.grid.Grid) :
             if i in attrList:
                 attrList.remove(i)
         return attrList
+
+class resultSchemaTable(wx.grid.Grid) :
+    def __init__(self, parent):
+        wx.grid.Grid.__init__(self, parent, -1, size = wx.Size(300, 200))
+        self.SetDefaultCellBackgroundColour(wx.Colour(0,0,0,0))
+        self.CreateGrid(0,1)
+        self.EnableEditing(False)
+        self.EnableDragCell(False)
+        self.EnableDragColSize(False)
+        self.EnableDragRowSize(False)
+        self.HideRowLabels()
+        self.HideColLabels()
+        self.SetColSize(0, 340)
+
+    def addAttr(self, attrName):
+        self.AppendRows(1)
+        self.SetCellValue(self.GetNumberRows()-1, 0, attrName)
+
 
 app = wx.App(False)
 frame = MainFrame(None, "SchemaGenerator" )
