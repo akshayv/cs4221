@@ -78,7 +78,7 @@ class AbstractNormalizer:
         closure_x = KeysRetriever.find_closure(offending_functional_dep.lhs_attributes, relation.functional_deps)
         relation1 = Relation(closure_x,
                              AbstractNormalizer.get_matching_functional_deps(closure_x, relation.functional_deps))
-        relation1.primary_key = offending_functional_dep.lhs_attributes
+        relation1.primary_key = Key(offending_functional_dep.lhs_attributes)
         remaining_attributes = set(relation.attributes - closure_x).union(offending_functional_dep.lhs_attributes)
         relation2 = Relation(remaining_attributes,
                              AbstractNormalizer.get_matching_functional_deps(remaining_attributes,
