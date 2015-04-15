@@ -68,11 +68,11 @@ def create_schema(relations,datatype_dict, username ,password):
                         else:
                             temp = temp + key
 
-                        relnum = rellst[0]
-                        rel_name = create_relation_name(relnum)
-                        cmd = 'ALTER TABLE ' + r_name + ' add FOREIGN KEY ('+temp+') REFERENCES '+rel_name+'('+temp+');'
-                        print 'cmd FOREIGN KEY: ',cmd
-                        mycursor.execute(cmd)
+                    relnum = rellst[0]
+                    rel_name = create_relation_name(relnum)
+                    cmd = 'ALTER TABLE ' + r_name + ' add FOREIGN KEY ('+temp+') REFERENCES '+rel_name+'('+temp+');'
+                    print 'cmd FOREIGN KEY: ',cmd
+                    mycursor.execute(cmd)
 
 def find_fkey_reln(relations):
     '''return <key,relation number list> pairs'''
@@ -90,8 +90,8 @@ def find_fkey_reln(relations):
         attributes = relation.attributes
         non_key = attributes - primary_key
 
-        R_PKey[counter] = primary_key
         primary_key = frozenset(primary_key)
+        R_PKey[counter] = primary_key
 
         R_Attr[counter] = attributes
         R_Nonkey[counter] = non_key
@@ -107,8 +107,10 @@ def find_fkey_reln(relations):
         primary_keys.add(primary_key)
 
 ## process foreign key
-    for key in primary_keys:
-        for counter,non_key in R_Nonkey.iteritems():
+    for cur_rel, key in R_PKey.iteritems():
+        for counter,non_key in R_Attr.iteritems():
+            if cur_rel == counter:
+                continue
             if key.issubset(non_key):
                 key_r = dict()
                 key_r[key] = PKey_R.get(key)
